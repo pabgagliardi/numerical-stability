@@ -1,0 +1,10 @@
+stages:
+  parse_corpus:
+    cmd: python src/parse_corpus.py
+    deps:
+      - src/parse_corpus.py
+      - ${corpus.path}
+    params:
+      - corpus
+    outs:
+      - data/words.csv
