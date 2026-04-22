@@ -1,0 +1,134 @@
+schema: '2.0'
+stages:
+  parse_corpus:
+    cmd: python src/parse_corpus.py
+    deps:
+    - path: src/parse_corpus.py
+      hash: md5
+      md5: 75521cff16bc44c7b53b4cda86405a66
+      size: 6277
+    params:
+      params.yaml:
+        corpus:
+          path: data/ru-fr_interference
+    outs:
+    - path: data/words.csv
+      hash: md5
+      md5: dc4c4fbd88361c8a5fda3555c1a91969
+      size: 183160
+  extract_features:
+    cmd: python src/extract_features.py
+    deps:
+    - path: data/words.csv
+      hash: md5
+      md5: dc4c4fbd88361c8a5fda3555c1a91969
+      size: 183160
+    - path: src/extract_features.py
+      hash: md5
+      md5: 1d0cef9d66e6d688a2bfffb8e79c2912
+      size: 5167
+    params:
+      params.yaml:
+        model:
+          name: facebook/wav2vec2-base
+          layer: 6
+    outs:
+    - path: data/features_float64.npz
+      hash: md5
+      md5: 84db63664bb52df36a748f8867e664f5
+      size: 8410304
+  convert_precision:
+    cmd: python src/convert_precision.py
+    deps:
+    - path: data/features_float64.npz
+      hash: md5
+      md5: 84db63664bb52df36a748f8867e664f5
+      size: 8410304
+    - path: src/convert_precision.py
+      hash: md5
+      md5: c3f68bcf7a726bc6518c69360adae50e
+      size: 3590
+    params:
+      params.yaml:
+        precision_levels:
+        - float64
+        - float32
+        - float16
+        - int8
+    outs:
+    - path: data/features_float16.npz
+      hash: md5
+      md5: deeb17e5a5d4ede4d7e6c76550dac73d
+      size: 2111168
+    - path: data/features_float32.npz
+      hash: md5
+      md5: 9bfe9101640f73fcb6897ea8e40402cb
+      size: 4210880
+    - path: data/features_int8.npz
+      hash: md5
+      md5: 886566deba0e49d2f4646f14c128e96b
+      size: 1072492
+  compute_distances:
+    cmd: python src/compute_distances.py
+    deps:
+    - path: data/features_float16.npz
+      hash: md5
+      md5: deeb17e5a5d4ede4d7e6c76550dac73d
+      size: 2111168
+    - path: data/features_float32.npz
+      hash: md5
+      md5: 9bfe9101640f73fcb6897ea8e40402cb
+      size: 4210880
+    - path: data/features_float64.npz
+      hash: md5
+      md5: 84db63664bb52df36a748f8867e664f5
+      size: 8410304
+    - path: data/features_int8.npz
+      hash: md5
+      md5: 886566deba0e49d2f4646f14c128e96b
+      size: 1072492
+    - path: data/words.csv
+      hash: md5
+      md5: dc4c4fbd88361c8a5fda3555c1a91969
+      size: 183160
+    - path: src/compute_distances.py
+      hash: md5
+      md5: d65e74ea38e19d1aac552997891a3ce8
+      size: 6571
+    params:
+      params.yaml:
+        distance:
+          metric: cosine
+    outs:
+    - path: results/distances.csv
+      hash: md5
+      md5: 5d63023c680448313c047cee820bf1a2
+      size: 1057866
+  visualise:
+    cmd: python src/visualise.py
+    deps:
+    - path: results/distances.csv
+      hash: md5
+      md5: 5d63023c680448313c047cee820bf1a2
+      size: 1057866
+    - path: src/visualise.py
+      hash: md5
+      md5: a4dab4704a8bc491ad433739748bca5a
+      size: 8089
+    outs:
+    - path: results/plot1_distributions.png
+      hash: md5
+      md5: 34c61a0c54139dee122801548d2b9b8a
+      size: 188660
+    - path: results/plot2_mean_distances.png
+      hash: md5
+      md5: 490d07b08a9c1693c6eb7a648a175f66
+      size: 39302
+    - path: results/plot3_ratio.png
+      hash: md5
+      md5: e2d932c83d6969d67c4622422cad1e33
+      size: 40682
+    - path: results/plot4_per_word_ratio.png
+      hash: md5
+      md5: f30f1dc02b319e5b98f50a9ee54ae8c3
+      size: 64196

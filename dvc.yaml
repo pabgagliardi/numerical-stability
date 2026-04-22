@@ -3,8 +3,64 @@ stages:
     cmd: python src/parse_corpus.py
     deps:
       - src/parse_corpus.py
-      - ${corpus.path}
     params:
       - corpus
     outs:
+      - data/words.csv:
+          cache: false
+
+  extract_features:
+    cmd: python src/extract_features.py
+    deps:
+      - src/extract_features.py
       - data/words.csv
+    params:
+      - model
+    outs:
+      - data/features_float64.npz:
+          cache: false
+
+  convert_precision:
+    cmd: python src/convert_precision.py
+    deps:
+      - src/convert_precision.py
+      - data/features_float64.npz
+    params:
+      - precision_levels
+    outs:
+      - data/features_float32.npz:
+          cache: false
+      - data/features_float16.npz:
+          cache: false
+      - data/features_int8.npz:
+          cache: false
+
+  compute_distances:
+    cmd: python src/compute_distances.py
+    deps:
+      - src/compute_distances.py
+      - data/words.csv
+      - data/features_float64.npz
+      - data/features_float32.npz
+      - data/features_float16.npz
+      - data/features_int8.npz
+    params:
+      - distance
+    outs:
+      - results/distances.csv:
+          cache: false
+
+  visualise:
+    cmd: python src/visualise.py
+    deps:
+      - src/visualise.py
+      - results/distances.csv
+    outs:
+      - results/plot1_distributions.png:
+          cache: false
+      - results/plot2_mean_distances.png:
+          cache: false
+      - results/plot3_ratio.png:
+          cache: false
+      - results/plot4_per_word_ratio.png:
+          cache: false
