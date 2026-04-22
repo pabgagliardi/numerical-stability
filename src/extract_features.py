@@ -1,7 +1,7 @@
 """
 Stage 2 — extract_features.py
 Loads wav2vec2, extracts hidden states for each word token in words.csv.
-Saves float32 representations to data/features_float32.npz
+Saves float64 representations to data/features_float64.npz
 
 We extract once in float32. All other precision levels are derived
 from this in the next stage (convert_precision.py).
@@ -23,7 +23,7 @@ with open("params.yaml") as f:
 MODEL_NAME   = params["model"]["name"]
 LAYER_IDX    = params["model"]["layer"]
 WORDS_CSV    = "data/words.csv"
-OUTPUT_PATH  = "data/features_float32.npz"
+OUTPUT_PATH = "data/features_float64.npz"
 
 # ── load model ─────────────────────────────────────────────────────
 print(f"Loading model: {MODEL_NAME}")
@@ -128,14 +128,10 @@ valid_ids = [i for i, v in zip(token_ids, valid_mask) if v]
 
 print(f"\nExtracted {len(valid_features)}/{len(df)} tokens successfully.")
 
-# ── save as float32 npz ────────────────────────────────────────────
-X = np.stack(valid_features).astype(np.float32)  # (N, D)
+# ── save as float64 npz ────────────────────────────────────────────
+X = np.stack(valid_features).astype(np.float64)
 
-np.savez(
-    OUTPUT_PATH,
-    features=X,
-    token_ids=np.array(valid_ids),
-)
+np.savez(OUTPUT_PATH, features=X, token_ids=np.array(valid_ids))
 
 elapsed = time.time() - start_time
 print(f"Saved to {OUTPUT_PATH}  shape: {X.shape}")
